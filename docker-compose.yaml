@@ -38,8 +38,8 @@ x-common-env: &common-env
   OPENAI_API_KEY: ${OPENAI_API_KEY}
   OPENAI_BASE_URL: ${OPENAI_BASE_URL}
   MODEL_NAME: ${MODEL_NAME}
-  MODEL_EMBEDDING_NAME: ${MODEL_EMBEDDING_NAME} 
-  OLLAMA_BASE_URL: ${OLLAMA_BASE_URL} 
+  MODEL_EMBEDDING_NAME: ${MODEL_EMBEDDING_NAME}
+  OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
   SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
   BULL_AUTH_KEY: ${BULL_AUTH_KEY}
   TEST_API_KEY: ${TEST_API_KEY}
@@ -54,6 +54,11 @@ x-common-env: &common-env
   SEARXNG_ENDPOINT: ${SEARXNG_ENDPOINT}
   SEARXNG_ENGINES: ${SEARXNG_ENGINES}
   SEARXNG_CATEGORIES: ${SEARXNG_CATEGORIES}
+
+  # Optional resource limits for the API service. These are not enforced by Docker Compose, but can be used by external tools or when deploying to Kubernetes.
+  MAX_RAM: ${MAX_RAM:-1.0}
+  MAX_CPU: ${MAX_CPU:-1.0}
+  IS_KUBERNETES: ${IS_KUBERNETES:-false}
 
 services:
   playwright-service:
@@ -72,9 +77,9 @@ services:
     networks:
       - backend
     # Resource limits for Docker Compose (not Swarm)
-    cpus: 2.0
-    mem_limit: 4G
-    memswap_limit: 4G
+    # cpus: 2.0
+    # mem_limit: 4G
+    # memswap_limit: 4G
     logging:
       driver: "json-file"
       options:
@@ -106,9 +111,9 @@ services:
     command: node dist/src/harness.js --start-docker
     # Resource limits for Docker Compose (not Swarm)
     # Increase if you have more CPU cores/RAM available
-    cpus: 4.0
-    mem_limit: 8G
-    memswap_limit: 8G
+    # cpus: 4.0
+    # mem_limit: 8G
+    # memswap_limit: 8G
 
   redis:
     # NOTE: If you want to use Valkey (open source) instead of Redis (source available),
@@ -126,7 +131,7 @@ services:
         max-size: "5m"
         max-file: "2"
         compress: "true"
-    
+
   rabbitmq:
     image: rabbitmq:3-management
     networks:
@@ -144,7 +149,7 @@ services:
         max-size: "5m"
         max-file: "2"
         compress: "true"
-  
+
   nuq-postgres:
     build: apps/nuq-postgres
     environment:
